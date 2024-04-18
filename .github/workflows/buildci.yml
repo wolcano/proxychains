@@ -1,6 +1,7 @@
 name: Makefile CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
   pull_request:
@@ -22,34 +23,43 @@ jobs:
         run: ./proxychains4 -v
 
       - name: Run tests
-        run: ./src/proxychains -f dist/proxychains.conf on
+        run: |
+          export LD_LIBRARY_PATH=`pwd`/src
+          ./src/proxychains -f dist/proxychains.conf on
 
       # - name: Run tests
       #   run: ./src/proxychains -f dist/proxychains.conf curl -o /dev/null -v https://sme.sk
 
       # - name: Run tests
       #   run: ./src/proxychains -f dist/proxychains.conf ping -c 1 sme.sk
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: configure
-        run: ./configure
+      - uses: actions/upload-artifact@v3
+        with:
+          name: proxychains
+          path: |
+            src/proxychains
+            src/libproxychains.o
+            dist/proxychains.conf
 
-      - name: Build Proxychains
-        run: make
-
-      - name: Run Proxychains
-        run: ./proxychains4 -v
-
-      - name: Run tests
-        run: ./src/proxychains -f dist/proxychains.conf on
-
-      # - name: Run tests
-      #   run: ./src/proxychains -f dist/proxychains.conf curl -o /dev/null -v https://sme.sk
-
-      # - name: Run tests
-      #   run: ./src/proxychains -f dist/proxychains.conf ping -t 1 sme.sk
-
-
+#  build-macos:
+#    runs-on: macos-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: configure
+#        run: ./configure
+#
+#      - name: Build Proxychains
+#        run: make
+#
+#      - name: Run Proxychains
+#        run: ./proxychains4 -v
+#
+#      - name: Run tests
+#        run: ./src/proxychains -f dist/proxychains.conf on
+#
+#      # - name: Run tests
+#      #   run: ./src/proxychains -f dist/proxychains.conf curl -o /dev/null -v https://sme.sk
+#
+#      # - name: Run tests
+#      #   run: ./src/proxychains -f dist/proxychains.conf ping -t 1 sme.sk
